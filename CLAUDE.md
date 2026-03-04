@@ -1,0 +1,35 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+This is a Next.js 16 application created with `create-next-app`. It uses TypeScript and Tailwind CSS for styling. The project follows the standard Next.js file structure with an `app` directory for the application.
+
+## Key Files and Structure
+
+- `app/page.tsx` - Main landing page component
+- `app/layout.tsx` - Root layout component with font imports
+- `app/globals.css` - Global CSS styles
+- `package.json` - Project dependencies and scripts
+- `tsconfig.json` - TypeScript configuration
+- `eslint.config.mjs` - ESLint configuration
+
+## Development Commands
+
+To develop in this codebase, use these commands:
+
+- `npm run dev` - Start the development server
+- `npm run build` - Build the application for production
+- `npm run start` - Start the production server
+- `npm run lint` - Run ESLint for code quality checks
+
+## Architecture Notes
+
+This is a standard Next.js 16 application using the App Router. The project structure follows Next.js conventions with:
+- `app/` directory for the application
+- TypeScript for type safety
+- Tailwind CSS for styling
+- ESLint for code quality
+
+The application uses Next.js's built-in font optimization with Geist font family.
