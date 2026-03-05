@@ -1,211 +1,26 @@
-'use client';
+import { getUserWorkoutEntries, WorkoutEntry } from '@/data/workouts';
+import { currentUser } from '@clerk/nextjs/server';
+import DashboardClient from './dashboard-client';
 
-import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
-import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+// Server component for dashboard page
+export default async function DashboardPage() {
+  // Fetch the current user
+  const user = await currentUser();
+  const userName = user ? `${user.firstName} ${user.lastName}`.trim() || 'User' : 'Guest';
 
-export default function DashboardPage() {
-  const [user, setUser] = useState<any>(null);
-  const [workouts, setWorkouts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState<string>(() => {
-    // Set default to current date
-    const today = new Date();
-    return today.toISOString().split('T')[0];
-  });
+  // Fetch workouts for the current user
+  const workouts = await getUserWorkoutEntries();
 
-  useEffect(() => {
-    // Simulate fetching user data
-    const fetchUserData = () => {
-      // In a real app, this would be an API call
-      const mockUser = {
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        avatar: '/avatar.jpg'
-      };
+  // For demonstration purposes, we'll use mock data if no workouts exist
+  // In a real implementation, the actual workouts would be returned from the database
+  const mockWorkouts: WorkoutEntry[] = [
+    { id: 1, date: '2023-06-15', exercise: 'Bench Press', sets: 3, reps: 10, weight: 135 },
+    { id: 2, date: '2023-06-16', exercise: 'Squats', sets: 4, reps: 8, weight: 185 },
+    { id: 3, date: '2023-06-17', exercise: 'Deadlift', sets: 3, reps: 5, weight: 225 },
+  ];
 
-      const mockWorkouts = [
-        { id: 1, date: '2023-06-15', exercise: 'Bench Press', sets: 3, reps: 10, weight: 135 },
-        { id: 2, date: '2023-06-16', exercise: 'Squats', sets: 4, reps: 8, weight: 185 },
-        { id: 3, date: '2023-06-17', exercise: 'Deadlift', sets: 3, reps: 5, weight: 225 },
-        { id: 4, date: selectedDate, exercise: 'Bench Press', sets: 3, reps: 12, weight: 135 },
-        { id: 5, date: selectedDate, exercise: 'Squats', sets: 3, reps: 10, weight: 185 },
-      ];
+  // Use real workouts if available, otherwise use mock data
+  const userWorkouts = workouts.length > 0 ? workouts : mockWorkouts;
 
-      setUser(mockUser);
-      setWorkouts(mockWorkouts);
-      setLoading(false);
-    };
-
-    fetchUserData();
-  }, [selectedDate]);
-
-  // Format date function according to UI standards
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return format(date, 'do MMM yyyy');
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-black">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Filter workouts for the selected date
-  const workoutsForSelectedDate = workouts.filter(workout => workout.date === selectedDate);
-
-  return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-black">
-      <main className="max-w-6xl mx-auto p-4 sm:p-6">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-black dark:text-white mb-2">Welcome, {user?.name}!</h2>
-          <p className="text-gray-600 dark:text-gray-400">Track your lifting progress and workouts</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-lg font-semibold text-black dark:text-white">Total Workouts</CardTitle>
-              <Badge variant="default">Count</Badge>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{workouts.length}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-lg font-semibold text-black dark:text-white">Best Lift</CardTitle>
-              <Badge variant="default">225 lbs</Badge>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-green-600 dark:text-green-400">225 lbs</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-lg font-semibold text-black dark:text-white">This Week</CardTitle>
-              <Badge variant="default">3 workouts</Badge>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">3 workouts</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Datepicker Section */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-xl text-black dark:text-white">Workouts for Date</CardTitle>
-            <CardDescription>Select a date to view workouts</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-4 mb-6">
-              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Select Date:</Label>
-              <Input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="max-w-xs"
-              />
-            </div>
-
-            {/* Workouts List for Selected Date */}
-            {workoutsForSelectedDate.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-left">Exercise</TableHead>
-                    <TableHead className="text-left">Sets</TableHead>
-                    <TableHead className="text-left">Reps</TableHead>
-                    <TableHead className="text-left">Weight</TableHead>
-                    <TableHead className="text-left">Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {workoutsForSelectedDate.map((workout) => (
-                    <TableRow key={workout.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                      <TableCell className="font-medium text-gray-900 dark:text-gray-100">{workout.exercise}</TableCell>
-                      <TableCell className="text-gray-900 dark:text-gray-100">{workout.sets}</TableCell>
-                      <TableCell className="text-gray-900 dark:text-gray-100">{workout.reps}</TableCell>
-                      <TableCell className="text-gray-900 dark:text-gray-100">{workout.weight} lbs</TableCell>
-                      <TableCell className="text-gray-900 dark:text-gray-100">{formatDate(workout.date)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500 dark:text-gray-400">No workouts logged for {selectedDate}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg text-black dark:text-white">Add New Workout</CardTitle>
-            <CardDescription>Enter workout details below</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Exercise</Label>
-                <Input
-                  type="text"
-                  placeholder="e.g., Bench Press"
-                />
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</Label>
-                <Input
-                  type="date"
-                  value={selectedDate}
-                />
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sets</Label>
-                <Input
-                  type="number"
-                  placeholder="e.g., 3"
-                />
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reps</Label>
-                <Input
-                  type="number"
-                  placeholder="e.g., 10"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Weight (lbs)</Label>
-                <Input
-                  type="number"
-                  placeholder="e.g., 135"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <Button type="submit" className="w-full">
-                  Add Workout
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      </main>
-    </div>
-  );
+  return <DashboardClient workouts={userWorkouts} userName={userName} />;
 }
