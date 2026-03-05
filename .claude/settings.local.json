@@ -11,7 +11,11 @@
       "mcp__neon__run_sql",
       "mcp__neon__prepare_database_migration",
       "mcp__neon__complete_database_migration",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(mkdir:*)",
+      "WebSearch",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)"
     ]
   },
   "outputStyle": "default"

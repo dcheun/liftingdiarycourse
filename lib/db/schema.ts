@@ -1,4 +1,4 @@
-import { integer, pgTable, serial, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
 
 // Workouts table
 export const workouts = pgTable('workouts', {
