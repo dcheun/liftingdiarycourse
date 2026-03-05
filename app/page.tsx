@@ -53,9 +53,12 @@ export default function Home() {
             </a>
           </SignedOut>
           <SignedIn>
-            <p className="flex h-12 w-full items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 px-5">
-              Signed in
-            </p>
+            <a
+              href="/dashboard"
+              className="flex h-12 w-full items-center justify-center rounded-full bg-blue-600 text-white px-5 transition-colors hover:bg-blue-700"
+            >
+              Go to Dashboard
+            </a>
           </SignedIn>
         </div>
       </main>

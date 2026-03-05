@@ -51,6 +51,11 @@ export default function RootLayout({
                 </SignUpButton>
               </SignedOut>
               <SignedIn>
+                <nav className="flex space-x-4">
+                  <a href="/dashboard" className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+                    Dashboard
+                  </a>
+                </nav>
                 <UserButton />
               </SignedIn>
             </div>
