@@ -13,6 +13,38 @@ export interface WorkoutEntry {
   weight: number
 }
 
+// Input types for creating workouts
+export interface CreateWorkoutInput {
+  name: string
+  date: string
+  duration?: number
+}
+
+export interface CreateExerciseInput {
+  name: string
+  order?: number
+}
+
+export interface CreateSetInput {
+  weight?: number
+  reps?: number
+  duration?: number
+  order?: number
+}
+
+export interface CreateWorkoutWithExercisesInput extends CreateWorkoutInput {
+  exercises: {
+    name: string
+    order?: number
+    sets: {
+      weight?: number
+      reps?: number
+      duration?: number
+      order?: number
+    }[]
+  }[]
+}
+
 interface SetData {
   id: number
   exerciseId: number
@@ -233,4 +265,54 @@ export async function getUserWorkoutsByDate(date: string) {
     ...workout,
     exercises: exercisesByWorkout.get(workout.id) || [],
   }))
+}
+
+// Create a new workout with exercises and sets
+export async function createWorkoutWithExercises(input: CreateWorkoutWithExercisesInput) {
+  const user = await currentUser()
+  if (!user) {
+    throw new Error('Unauthorized')
+  }
+
+  // Create workout
+  const workoutResult = await db
+    .insert(workouts)
+    .values({
+      userId: user.id,
+      name: input.name,
+      date: new Date(input.date),
+      duration: input.duration,
+    })
+    .returning()
+
+  const workout = workoutResult[0]
+
+  // Create exercises
+  for (const exerciseInput of input.exercises) {
+    const exerciseResult = await db
+      .insert(exercises)
+      .values({
+        workoutId: workout.id,
+        name: exerciseInput.name,
+        order: exerciseInput.order,
+      })
+      .returning()
+
+    const exercise = exerciseResult[0]
+
+    // Create sets for this exercise
+    if (exerciseInput.sets.length > 0) {
+      await db.insert(sets).values(
+        exerciseInput.sets.map((set) => ({
+          exerciseId: exercise.id,
+          weight: set.weight,
+          reps: set.reps,
+          duration: set.duration,
+          order: set.order,
+        }))
+      )
+    }
+  }
+
+  return workout
 }

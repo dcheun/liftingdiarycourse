@@ -41,3 +41,5 @@ The application uses Next.js's built-in font optimization with Geist font family
 
 - /docs/ui.md
 - /docs/data-fetching.md
+- /docs/auth.md
+- /docs/data-mutations.md
