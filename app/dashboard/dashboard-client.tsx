@@ -21,9 +21,14 @@ import { useState } from 'react'
 interface DashboardClientProps {
   workouts: WorkoutEntry[]
   userName: string
+  stats: {
+    totalWorkouts: number
+    bestLift: number
+    thisWeekWorkouts: number
+  }
 }
 
-export default function DashboardClient({ workouts, userName }: DashboardClientProps) {
+export default function DashboardClient({ workouts, userName, stats }: DashboardClientProps) {
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     const today = new Date()
     return today.toISOString().split('T')[0]
@@ -70,10 +75,12 @@ export default function DashboardClient({ workouts, userName }: DashboardClientP
               <CardTitle className='text-lg font-semibold text-black dark:text-white'>
                 Best Lift
               </CardTitle>
-              <Badge variant='default'>225 lbs</Badge>
+              <Badge variant='default'>{stats.bestLift} lbs</Badge>
             </CardHeader>
             <CardContent>
-              <p className='text-3xl font-bold text-green-600 dark:text-green-400'>225 lbs</p>
+              <p className='text-3xl font-bold text-green-600 dark:text-green-400'>
+                {stats.bestLift} lbs
+              </p>
             </CardContent>
           </Card>
 
@@ -82,10 +89,12 @@ export default function DashboardClient({ workouts, userName }: DashboardClientP
               <CardTitle className='text-lg font-semibold text-black dark:text-white'>
                 This Week
               </CardTitle>
-              <Badge variant='default'>3 workouts</Badge>
+              <Badge variant='default'>{stats.thisWeekWorkouts} workouts</Badge>
             </CardHeader>
             <CardContent>
-              <p className='text-3xl font-bold text-purple-600 dark:text-purple-400'>3 workouts</p>
+              <p className='text-3xl font-bold text-purple-600 dark:text-purple-400'>
+                {stats.thisWeekWorkouts} workouts
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -111,38 +120,56 @@ export default function DashboardClient({ workouts, userName }: DashboardClientP
 
             {/* Workouts List for Selected Date */}
             {workoutsForSelectedDate.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className='text-left'>Exercise</TableHead>
-                    <TableHead className='text-left'>Sets</TableHead>
-                    <TableHead className='text-left'>Reps</TableHead>
-                    <TableHead className='text-left'>Weight</TableHead>
-                    <TableHead className='text-left'>Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {workoutsForSelectedDate.map((workout) => (
-                    <TableRow key={workout.id} className='hover:bg-gray-50 dark:hover:bg-gray-800'>
-                      <TableCell className='font-medium text-gray-900 dark:text-gray-100'>
-                        {workout.exercise}
-                      </TableCell>
-                      <TableCell className='text-gray-900 dark:text-gray-100'>
-                        {workout.sets}
-                      </TableCell>
-                      <TableCell className='text-gray-900 dark:text-gray-100'>
-                        {workout.reps}
-                      </TableCell>
-                      <TableCell className='text-gray-900 dark:text-gray-100'>
-                        {workout.weight} lbs
-                      </TableCell>
-                      <TableCell className='text-gray-900 dark:text-gray-100'>
-                        {formatDate(workout.date)}
-                      </TableCell>
+              <>
+                <div className='mb-4'>
+                  <h3 className='text-lg font-semibold text-black dark:text-white'>
+                    {workoutsForSelectedDate[0].workoutName}
+                  </h3>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className='text-left'>Exercise</TableHead>
+                      <TableHead className='text-left'>Sets</TableHead>
+                      <TableHead className='text-left'>Reps</TableHead>
+                      <TableHead className='text-left'>Weight</TableHead>
+                      <TableHead className='text-left'>Date</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {workoutsForSelectedDate.map((workout) => (
+                      <TableRow key={workout.id} className='hover:bg-gray-50 dark:hover:bg-gray-800'>
+                        <TableCell className='font-medium text-gray-900 dark:text-gray-100'>
+                          {workout.exercise}
+                        </TableCell>
+                        <TableCell className='text-gray-900 dark:text-gray-100'>
+                          {workout.sets}
+                        </TableCell>
+                        <TableCell className='text-gray-900 dark:text-gray-100'>
+                          {workout.reps}
+                        </TableCell>
+                        <TableCell className='text-gray-900 dark:text-gray-100'>
+                          {workout.weight} lbs
+                        </TableCell>
+                        <TableCell className='text-gray-900 dark:text-gray-100'>
+                          {formatDate(workout.date)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                {/* Edit Workout Button */}
+                <div className='mt-4 flex justify-center'>
+                  <Link
+                    href={{
+                      pathname: `/dashboard/workout/${workoutsForSelectedDate[0].workoutId}`,
+                      query: { date: selectedDate },
+                    }}
+                  >
+                    <Button className='w-full sm:w-auto'>Edit Workout</Button>
+                  </Link>
+                </div>
+              </>
             ) : (
               <div className='py-8 text-center'>
                 <p className='text-gray-500 dark:text-gray-400'>
